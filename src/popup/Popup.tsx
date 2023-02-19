@@ -7,49 +7,53 @@ function App() {
   const checkboxId = useId()
   const [isWireframe, setIsWireframe] = useState(false)
 
-  const createStyleSheet = useCallback(() => {
-    const styleTag = document.createElement('style')
-    styleTag.className = 'aparecium-wireframe'
-    styleTag.appendChild(
-      // cssファイルの読み込みでできないかな？
-      document.createTextNode(
-        'span { background: red !important; } article {background: blue !important} .ExploreNav_navLink__O0Z_T {background-color: blue;}',
-      ),
-    )
-    return styleTag
-  }, [])
+  function injectedFunction() {
+    const createStyleSheet = () => {
+      const styleTag = document.createElement('style')
+      styleTag.className = 'aparecium-wireframe'
+      styleTag.appendChild(
+        // cssファイルの読み込みでできないかな？
+        document.createTextNode(
+          'span { background: red !important; } article {background: blue !important} .ExploreNav_navLink__O0Z_T {background-color: blue;}',
+        ),
+      )
+      return styleTag
+    }
 
-  // function injectedFunction() {
-  //   console.log("injectedFunction");
-  //   document.body.style.backgroundColor = "orange";
-  // }
+    // ページ全体をワイヤーフレームにする
+    const styleTag = createStyleSheet()
+    const { head } = document
+    head.appendChild(styleTag)
+  }
 
   useEffect(() => {
     if (isWireframe) {
-      // // ページ全体をワイヤーフレームにする
-      const styleTag = createStyleSheet()
-      const { head } = document
-      console.log('head', head)
-      head.appendChild(styleTag)
-      // chrome.action.onClicked.addListener((tab) => {
-      //   if (tab.id) {
-      //     chrome.scripting.executeScript({
-      //       target: { tabId: tab.id },
-      //       func: injectedFunction,
-      //     });
-      //   }
-      // });
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+        if (tab.id) {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: injectedFunction,
+          })
+        }
+      })
     } else {
-      // ページ全体のワイヤーフレームを解除する
-      const styleTag = document.querySelector('.aparecium-wireframe')
-      console.log('styleTag', styleTag)
-      if (styleTag) {
-        styleTag.remove()
-      }
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+        if (tab.id) {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+              // ページ全体のワイヤーフレームを解除する
+              const styleTag = document.querySelector('.aparecium-wireframe')
+              if (styleTag) {
+                styleTag.remove()
+              }
+            },
+          })
+        }
+      })
     }
-  }, [createStyleSheet, isWireframe])
+  }, [isWireframe])
 
-  console.log(`render`)
   return (
     <main>
       <h3>Popup Page!</h3>
