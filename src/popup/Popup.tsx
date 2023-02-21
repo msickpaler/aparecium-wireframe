@@ -1,81 +1,39 @@
-import { useCallback, useEffect, useId, useState } from 'react'
-import './Popup.css'
+import { CSSProperties, useId } from 'react'
+import { useWireframe } from './useWireframe'
+
+const styles: Record<string, CSSProperties> = {
+  rootContainer: { margin: '1rem' },
+  title: { textAlign: 'center' },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    gridTemplateRows: 'repeat(auto-fill, minmax(0,1fr))',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+}
 
 function App() {
-  const [crx, setCrx] = useState('create-chrome-ext')
-
   const checkboxId = useId()
-  const [isWireframe, setIsWireframe] = useState(false)
 
-  function injectedFunction() {
-    const createStyleSheet = () => {
-      const styleTag = document.createElement('style')
-      styleTag.className = 'aparecium-wireframe'
-      styleTag.appendChild(
-        // cssファイルの読み込みでできないかな？
-        document.createTextNode(
-          'span { background: red !important; } article {background: blue !important} .ExploreNav_navLink__O0Z_T {background-color: blue;}',
-        ),
-      )
-      return styleTag
-    }
-
-    // ページ全体をワイヤーフレームにする
-    const styleTag = createStyleSheet()
-    const { head } = document
-    head.appendChild(styleTag)
-  }
-
-  useEffect(() => {
-    if (isWireframe) {
-      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-        if (tab.id) {
-          chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: injectedFunction,
-          })
-        }
-      })
-    } else {
-      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-        if (tab.id) {
-          chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-              // ページ全体のワイヤーフレームを解除する
-              const styleTag = document.querySelector('.aparecium-wireframe')
-              if (styleTag) {
-                styleTag.remove()
-              }
-            },
-          })
-        }
-      })
-    }
-  }, [isWireframe])
+  const { isWireframe, onChangeIsWireframe } = useWireframe()
 
   return (
-    <main>
-      <h3>Popup Page!</h3>
-
-      <h6>v 0.0.0</h6>
-
-      <a href="https://www.npmjs.com/package/create-chrome-ext" target="_blank">
-        Power by {crx}
-      </a>
-      <h1 className="">Aparecium Wireframe</h1>
-      <label htmlFor={checkboxId} className="flex items-center m-2 p-16 select-none">
-        <input
-          id={checkboxId}
-          type="checkbox"
-          className="mr-2"
-          checked={isWireframe}
-          onChange={(e) => setIsWireframe(e.target.checked)}
-        />
-        <span className="text-sm">Toggle Switch</span>
-      </label>
-      <span>{isWireframe ? 'wireframe' : 'normal'}</span>
-      <article>this is article</article>
+    <main style={styles.rootContainer}>
+      <h1 style={styles.title}>Aparecium Wireframe</h1>
+      <div style={styles.grid}>
+        <span>onoff</span>
+        <div>
+          <input
+            id={checkboxId}
+            type="checkbox"
+            style={{ marginRight: 4 }}
+            checked={isWireframe}
+            onChange={onChangeIsWireframe}
+          />
+          <label htmlFor={checkboxId}>Toggle Switch</label>
+        </div>
+      </div>
     </main>
   )
 }
