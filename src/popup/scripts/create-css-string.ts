@@ -2,11 +2,10 @@ import * as CSS from 'csstype'
 
 const toKebab = (str: string) => str.replace(/[A-Z]/g, (v) => `-${v.toLowerCase()}`)
 
-const DEFAULT_CONTENT_COLOR = 'rgba(255,255,255, 1)'
-const DEFAULT_PADDING_COLOR = 'rgba(150,150,190, 1)'
-const DEFAULT_BORDER_COLOR = 'rgb(0 165 31)'
-
 const fillPaddingAndContent = (useSolidColor: boolean): CSS.Properties => {
+  const DEFAULT_CONTENT_COLOR = 'rgba(255,255,255, 1)'
+  const DEFAULT_PADDING_COLOR = 'rgba(150,150,190, 1)'
+  const DEFAULT_BORDER_COLOR = 'rgb(0 165 31)'
   return {
     ...(useSolidColor
       ? {
