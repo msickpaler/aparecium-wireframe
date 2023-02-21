@@ -1,5 +1,5 @@
 {
-  "name": "tmp-app",
+  "name": "aparecium-wireframe",
   "version": "0.0.0",
   "author": "**",
   "description": "",
@@ -9,7 +9,7 @@
     "chrome-extension",
     "react",
     "vite",
-    "create-chrome-ext"
+    "aparecium-wireframe"
   ],
   "engines": {
     "node": ">=14.18.0"
